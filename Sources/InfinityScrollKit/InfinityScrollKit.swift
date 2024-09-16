@@ -47,11 +47,11 @@ public struct InfiniteScrollView<T: Identifiable & Equatable, Cell: View>: View 
     }
 }
 
-class Options {
+public class Options {
     
     let countPerPage: Int
     
-    init(countPerPage: Int? = nil) {
+    public init(countPerPage: Int? = nil) {
         self.countPerPage = countPerPage ?? 5
     }
 }
