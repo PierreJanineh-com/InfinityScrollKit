@@ -9,9 +9,9 @@ public struct InfiniteScrollView<T: Identifiable & Equatable, Cell: View>: View 
     let options: Options
     @ViewBuilder let CellView: (T) -> Cell
     
-    public init(arr: Array<Identifiable & Equatable>,
+    public init(arr: Array<T>,
                 options: Options,
-                CellView: @escaping (Identifiable & Equatable) -> View) {
+                CellView: @escaping (T) -> Cell) {
         self.arr = arr
         self.options = options
         self.CellView = CellView
