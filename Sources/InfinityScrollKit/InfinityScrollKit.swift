@@ -3,7 +3,11 @@
 
 import SwiftUI
 
-public struct InfiniteScrollView<T: Identifiable & Equatable, Cell: View>: View {
+public struct InfiniteScrollView<
+    T: Identifiable & Equatable,
+    Cell: View,
+    LastCell: View
+>: View {
     
     @State private var currentlyShown: Int = 0
     @Binding private var isLoading: Bool
@@ -11,6 +15,16 @@ public struct InfiniteScrollView<T: Identifiable & Equatable, Cell: View>: View 
     @State private var arr: Array<T>
     private let options: Options<T>
     @ViewBuilder private let cellView: (T) -> Cell
+    @ViewBuilder private let lastCellView: (() -> LastCell)?
+    
+    /**
+     Creates an infinite scroll view.
+     - Parameters:
+        - arr: The array of items to display.
+        - options: An instance of an `Options` to customize the scroll view.
+        - cellView: A `ViewBuilder` function that returns the cell view for every item.
+        - lastCellView: A `ViewBuilder` function that returns the last cell. Thsi is used for displaying errors and progress.
+     */
     public init(arr: Array<T>,
                 isLoading: Binding<Bool>? = nil,
                 options: Options<T>? = nil,
@@ -19,6 +33,7 @@ public struct InfiniteScrollView<T: Identifiable & Equatable, Cell: View>: View 
         self._isLoading = isLoading ?? State(initialValue: false).projectedValue
         self.options = options ?? .init()
         self.cellView = cellView
+        self.lastCellView = lastCellView
     }
     
     public var body: some View {
@@ -33,8 +48,12 @@ public struct InfiniteScrollView<T: Identifiable & Equatable, Cell: View>: View 
                         }
                     
                     if isLoading {
-                        ProgressView()
-                            .padding()
+                        if let lastCellView {
+                            lastCellView()
+                        } else {
+                            ProgressView()
+                                .padding()
+                        }
                     }
                 }
             }
