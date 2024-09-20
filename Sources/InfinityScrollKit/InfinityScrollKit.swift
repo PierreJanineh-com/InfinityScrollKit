@@ -28,7 +28,8 @@ public struct InfiniteScrollView<
     public init(arr: Array<T>,
                 isLoading: Binding<Bool>? = nil,
                 options: Options<T>? = nil,
-                cellView: @escaping (T) -> Cell) {
+                cellView: @escaping (T) -> Cell,
+                lastCellView: (() -> LastCell)? = nil) {
         self._arr = .init(initialValue: arr)
         self._isLoading = isLoading ?? State(initialValue: false).projectedValue
         self.options = options ?? .init()
