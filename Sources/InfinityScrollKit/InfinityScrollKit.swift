@@ -31,7 +31,7 @@ public struct InfiniteScrollView<
                 cellView: @escaping (T) -> Cell,
                 lastCellView: @escaping () -> LastCell = { EmptyView() }) {
         self._arr = .init(initialValue: arr)
-        self._isLoading = isLoading ?? State(initialValue: false).projectedValue
+        self._isLoading = isLoading ?? .constant(false)
         self.options = options ?? .init()
         self.cellView = cellView
         self.lastCellView = lastCellView
