@@ -50,7 +50,9 @@ public struct InfiniteScrollView<
                     cellView(item)
                         .onAppear {
                             if item == displayedItems.last {
-                                addMoreItemsIfAvailable()
+                                Task {
+                                    await addMoreItemsIfAvailable()
+                                }
                             }
                         }
                 }
@@ -64,7 +66,9 @@ public struct InfiniteScrollView<
                         }
                     }
                     .onAppear {
-                        addMoreItemsIfAvailable()
+                        Task {
+                            await addMoreItemsIfAvailable()
+                        }
                     }
                 }
                 
@@ -88,7 +92,7 @@ public struct InfiniteScrollView<
         return arr[safeRange]
     }
     
-    private func addMoreItemsIfAvailable() {
+    private func addMoreItemsIfAvailable() async {
         isLoading = true
         
         if currentlyShown < arr.count {
@@ -98,9 +102,9 @@ public struct InfiniteScrollView<
         if let onPageLoad = options.onPageLoad,
                   let retrievesFullArray = options.retrievesFullArray {
             if retrievesFullArray {
-                self.arr = onPageLoad()
+                await self.arr = onPageLoad()
             } else {
-                self.arr += onPageLoad()
+                await self.arr += onPageLoad()
             }
         }
         
@@ -111,7 +115,7 @@ public struct InfiniteScrollView<
 public class Options<T> {
     
     let countPerPage: Int
-    let onPageLoad: (() -> [T])?
+    let onPageLoad: (() async -> [T])?
     let retrievesFullArray: Bool?
     
     /**
@@ -132,7 +136,7 @@ public class Options<T> {
         - onPageLoad: The callback function that retrieves an array to add to or replace the current array. This is typically the callback that handles scrolling down to the end.
         - retrievesFullArray: A boolean to indicate whether to add to or replace current array with the `onPageLoad` return value.
      */
-    public init(countPerPage: Int? = nil, onPageLoad: @escaping () -> [T], retrievesFullArray: Bool) {
+    public init(countPerPage: Int? = nil, onPageLoad: @escaping () async -> [T], retrievesFullArray: Bool) {
         self.countPerPage = countPerPage ?? 5
         self.onPageLoad = onPageLoad
         self.retrievesFullArray = retrievesFullArray
