@@ -62,6 +62,8 @@ public struct InfiniteScrollView<
     }
     
     private var displayedItems: Array<T>.SubSequence {
+        guard !arr.isEmpty else { return [] }
+        
         let range = 0...currentlyShown
         let safeRange = range.clamped(to: 0...arr.count-1)
         return arr[safeRange]
