@@ -55,12 +55,17 @@ public struct InfiniteScrollView<
                         }
                 }
                 
-                if arr.isEmpty {
-                    if emptyArrView is () -> EmptyView {
-                        Text("No items yet...")
-                    } else {
-                        emptyArrView()
+                Group {
+                    if arr.isEmpty {
+                        if emptyArrView is () -> EmptyView {
+                            Text("No items yet...")
+                        } else {
+                            emptyArrView()
+                        }
                     }
+                }
+                .onAppear {
+                    addMoreItemsIfAvailable()
                 }
                 
                 if isLoading {
