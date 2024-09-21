@@ -6,7 +6,8 @@ import SwiftUI
 public struct InfiniteScrollView<
     T: Identifiable & Equatable,
     Cell: View,
-    LastCell: View
+    LastCell: View,
+    EmptyArrView: View
 >: View {
     
     @State private var currentlyShown: Int = 0
@@ -16,25 +17,30 @@ public struct InfiniteScrollView<
     private let options: Options<T>
     @ViewBuilder private let cellView: (T) -> Cell
     @ViewBuilder private let lastCellView: () -> LastCell
+    @ViewBuilder private let emptyArrView: () -> EmptyArrView
     
     /**
      Creates an infinite scroll view.
      - Parameters:
         - arr: The array of items to display.
+        - isLoading: The state of the scroll.
         - options: An instance of an `Options` to customize the scroll view.
         - cellView: A `ViewBuilder` function that returns the cell view for every item.
         - lastCellView: A `ViewBuilder` function that returns the last cell. Thsi is used for displaying errors and progress.
+        - emptyArrView: The view to use when `arr` is empty.
      */
     public init(arr: Array<T>,
                 isLoading: Binding<Bool>? = nil,
                 options: Options<T>? = nil,
                 cellView: @escaping (T) -> Cell,
-                lastCellView: @escaping () -> LastCell = { EmptyView() }) {
+                lastCellView: @escaping () -> LastCell = { EmptyView() },
+                emptyArrView: @escaping () -> EmptyArrView = { EmptyView() }) {
         self._arr = .init(initialValue: arr)
         self._isLoading = isLoading ?? .constant(false)
         self.options = options ?? .init()
         self.cellView = cellView
         self.lastCellView = lastCellView
+        self.emptyArrView = emptyArrView
     }
     
     public var body: some View {
@@ -47,14 +53,22 @@ public struct InfiniteScrollView<
                                 addMoreItemsIfAvailable()
                             }
                         }
-                    
-                    if isLoading {
-                        if lastCellView() is EmptyView {
-                            ProgressView()
-                                .padding()
-                        } else {
-                            lastCellView()
-                        }
+                }
+                
+                if arr.isEmpty {
+                    if emptyArrView is () -> EmptyView {
+                        Text("No items yet...")
+                    } else {
+                        emptyArrView()
+                    }
+                }
+                
+                if isLoading {
+                    if lastCellView is () -> EmptyView {
+                        ProgressView()
+                            .padding()
+                    } else {
+                        lastCellView()
                     }
                 }
             }
