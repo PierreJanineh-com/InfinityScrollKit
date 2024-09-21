@@ -11,11 +11,11 @@ public struct InfiniteScrollView<
 >: View {
     
     @State private var currentlyShown: Int = 0
-    @State private var privateIsLoading: Bool = false
-    private var isLoading: Binding<Bool>? = nil
+    @State private var isLoading: Bool = false
     
     @State private var arr: Array<T>
     private let options: Options<T>
+    private let onLoadingChanged: ((Bool) -> Void)?
     @ViewBuilder private let cellView: (T) -> Cell
     @ViewBuilder private let lastCellView: () -> LastCell
     @ViewBuilder private let emptyArrView: () -> EmptyArrView
@@ -24,22 +24,21 @@ public struct InfiniteScrollView<
      Creates an infinite scroll view.
      - Parameters:
         - arr: The array of items to display.
-        - isLoading: The state of the scroll.
         - options: An instance of an `Options` to customize the scroll view.
+        - onLoadingChanged: A callback function to get updates of state of the scroll.
         - cellView: A `ViewBuilder` function that returns the cell view for every item.
         - lastCellView: A `ViewBuilder` function that returns the last cell. Thsi is used for displaying errors and progress.
         - emptyArrView: The view to use when `arr` is empty.
      */
     public init(arr: Array<T>,
-                isLoading: Binding<Bool>? = nil,
                 options: Options<T>? = nil,
+                onLoadingChanged: ((Bool) -> Void)? = nil,
                 cellView: @escaping (T) -> Cell,
                 lastCellView: @escaping () -> LastCell = { EmptyView() },
                 emptyArrView: @escaping () -> EmptyArrView = { EmptyView() }) {
         self._arr = .init(initialValue: arr)
-        self.isLoading = isLoading ?? .init(get: { self.privateIsLoading },
-                                            set: { _ in })
         self.options = options ?? .init()
+        self.onLoadingChanged = onLoadingChanged
         self.cellView = cellView
         self.lastCellView = lastCellView
         self.emptyArrView = emptyArrView
@@ -74,7 +73,7 @@ public struct InfiniteScrollView<
                     }
                 }
                 
-                if let isLoading, isLoading.wrappedValue {
+                if isLoading {
                     if lastCellView is () -> EmptyView {
                         ProgressView()
                             .padding()
@@ -83,6 +82,9 @@ public struct InfiniteScrollView<
                     }
                 }
             }
+        }
+        .onChange(of: isLoading) { _ in
+            onLoadingChanged?(isLoading)
         }
     }
     
@@ -95,7 +97,7 @@ public struct InfiniteScrollView<
     }
     
     private func addMoreItemsIfAvailable() async {
-        isLoading?.wrappedValue = true
+        isLoading = true
         
         if currentlyShown < arr.count {
             currentlyShown += options.countPerPage
@@ -110,7 +112,7 @@ public struct InfiniteScrollView<
             }
         }
         
-        isLoading?.wrappedValue = false
+        isLoading = false
     }
 }
 
