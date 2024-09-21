@@ -11,7 +11,8 @@ public struct InfiniteScrollView<
 >: View {
     
     @State private var currentlyShown: Int = 0
-    @Binding private var isLoading: Bool
+    @State private var privateIsLoading: Bool = false
+    private var isLoading: Binding<Bool>? = nil
     
     @State private var arr: Array<T>
     private let options: Options<T>
@@ -36,7 +37,8 @@ public struct InfiniteScrollView<
                 lastCellView: @escaping () -> LastCell = { EmptyView() },
                 emptyArrView: @escaping () -> EmptyArrView = { EmptyView() }) {
         self._arr = .init(initialValue: arr)
-        self._isLoading = isLoading ?? .constant(false)
+        self.isLoading = isLoading ?? .init(get: { self.privateIsLoading },
+                                            set: { _ in })
         self.options = options ?? .init()
         self.cellView = cellView
         self.lastCellView = lastCellView
@@ -72,7 +74,7 @@ public struct InfiniteScrollView<
                     }
                 }
                 
-                if isLoading {
+                if let isLoading, isLoading.wrappedValue {
                     if lastCellView is () -> EmptyView {
                         ProgressView()
                             .padding()
@@ -93,7 +95,7 @@ public struct InfiniteScrollView<
     }
     
     private func addMoreItemsIfAvailable() async {
-        isLoading = true
+        isLoading?.wrappedValue = true
         
         if currentlyShown < arr.count {
             currentlyShown += options.countPerPage
@@ -108,7 +110,7 @@ public struct InfiniteScrollView<
             }
         }
         
-        isLoading = false
+        isLoading?.wrappedValue = false
     }
 }
 
