@@ -15,7 +15,7 @@ public struct InfiniteScrollView<
     @State private var arr: Array<T>
     private let options: Options<T>
     @ViewBuilder private let cellView: (T) -> Cell
-    @ViewBuilder private let lastCellView: (() -> LastCell)?
+    @ViewBuilder private let lastCellView: () -> LastCell
     
     /**
      Creates an infinite scroll view.
@@ -29,7 +29,7 @@ public struct InfiniteScrollView<
                 isLoading: Binding<Bool>? = nil,
                 options: Options<T>? = nil,
                 cellView: @escaping (T) -> Cell,
-                lastCellView: (() -> LastCell)? = nil) {
+                lastCellView: @escaping () -> LastCell = { EmptyView() }) {
         self._arr = .init(initialValue: arr)
         self._isLoading = isLoading ?? State(initialValue: false).projectedValue
         self.options = options ?? .init()
@@ -49,11 +49,11 @@ public struct InfiniteScrollView<
                         }
                     
                     if isLoading {
-                        if let lastCellView {
-                            lastCellView()
-                        } else {
+                        if lastCellView() is EmptyView {
                             ProgressView()
                                 .padding()
+                        } else {
+                            lastCellView()
                         }
                     }
                 }
