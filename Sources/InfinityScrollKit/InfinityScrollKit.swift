@@ -93,7 +93,9 @@ public struct InfiniteScrollView<
         
         if currentlyShown < arr.count {
             currentlyShown += options.countPerPage
-        } else if let onPageLoad = options.onPageLoad,
+        }
+        
+        if let onPageLoad = options.onPageLoad,
                   let retrievesFullArray = options.retrievesFullArray {
             if retrievesFullArray {
                 self.arr = onPageLoad()
