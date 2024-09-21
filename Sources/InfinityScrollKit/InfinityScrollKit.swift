@@ -104,8 +104,8 @@ public struct InfiniteScrollView<
         }
         
         if let onPageLoad = options.onPageLoad,
-                  let retrievesFullArray = options.retrievesFullArray {
-            if retrievesFullArray {
+           let concatMode = options.concatMode {
+            if concatMode == .manual {
                 await self.arr = onPageLoad()
             } else {
                 await self.arr += onPageLoad()
@@ -120,7 +120,7 @@ public class Options<T> {
     
     let countPerPage: Int
     let onPageLoad: (() async -> [T])?
-    let retrievesFullArray: Bool?
+    let concatMode: ConcatMode?
     
     /**
      Options initializer for customizing count of items per page.
@@ -130,7 +130,7 @@ public class Options<T> {
     public init(countPerPage: Int? = nil) {
         self.countPerPage = countPerPage ?? 5
         self.onPageLoad = nil
-        self.retrievesFullArray = nil
+        self.concatMode = nil
     }
     
     /**
@@ -138,11 +138,15 @@ public class Options<T> {
      - Parameters:
         - countPerPage: Number of items in a single page (default value is 5).
         - onPageLoad: The callback function that retrieves an array to add to or replace the current array. This is typically the callback that handles scrolling down to the end.
-        - retrievesFullArray: A boolean to indicate whether to add to or replace current array with the `onPageLoad` return value.
+        - concatMode: An enum to indicate whether to add to or replace current array with the `onPageLoad` return value.
      */
-    public init(countPerPage: Int? = nil, onPageLoad: @escaping () async -> [T], retrievesFullArray: Bool) {
+    public init(countPerPage: Int? = nil, onPageLoad: @escaping () async -> [T], concatMode: ConcatMode = .auto) {
         self.countPerPage = countPerPage ?? 5
         self.onPageLoad = onPageLoad
-        self.retrievesFullArray = retrievesFullArray
+        self.concatMode = concatMode
+    }
+    
+    public enum ConcatMode {
+        case auto, manual
     }
 }
