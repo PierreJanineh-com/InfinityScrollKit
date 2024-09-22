@@ -115,9 +115,10 @@ struct ContentView: View {
 ## Platforms
 The InfiniteScrollView package supports the following platforms:
 - iOS 14.0+
-- macOS 11.0+
+- macOS 14.0+
 - watchOS 7.0+
 - tvOS 14.0+
+- visionOS 1.0+
 
 ## Contribution
 Feel free to contribute by creating issues or submitting pull requests. Before submitting, make sure to:
