@@ -6,7 +6,7 @@ import PackageDescription
 let package = Package(
     name: "InfinityScrollKit",
     platforms: [
-        .iOS(.v14), .tvOS(.v14), .macCatalyst(.v14), .watchOS(.v7)
+        .iOS(.v14), .tvOS(.v14), .macCatalyst(.v14), .macOS(.v14), .watchOS(.v7), .visionOS(.v1)
     ],
     products: [
         // Products define the executables and libraries a package produces, making them visible to other packages.
