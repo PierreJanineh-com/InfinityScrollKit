@@ -3,6 +3,7 @@
 
 import SwiftUI
 
+/// A view that displays a paginated array in an infinity scroll.
 public struct InfiniteScrollView<
     T: Identifiable & Equatable,
     Cell: View,
@@ -116,10 +117,16 @@ public struct InfiniteScrollView<
     }
 }
 
+/**
+ Instance for customizing ``InfiniteScrollView``
+ */
 public class Options<T> {
     
+    /// Count of items to display per page
     let countPerPage: Int
+    /// Callback for indicating when the scroll is loading new items
     let onPageLoad: (() async -> [T])?
+    /// Concatenation mode for loading items (comes along with `onPageLoad`
     let concatMode: ConcatMode?
     
     /**
@@ -146,7 +153,13 @@ public class Options<T> {
         self.concatMode = concatMode
     }
     
+    /**
+     Enum for managing concatenation on arrays while paginating
+     */
     public enum ConcatMode {
-        case auto, manual
+        /// Add new items automatically to the array
+        case auto
+        /// Receive a new array containing all items (including new fetched items)
+        case manual
     }
 }

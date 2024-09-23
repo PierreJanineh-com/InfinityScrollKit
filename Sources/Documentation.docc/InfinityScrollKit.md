@@ -1,8 +1,4 @@
-
-# InfinityScrollKit Package
-
-[![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fpierrejanineh-com%2FInfinityScrollKit%2Fbadge%3Ftype%3Dswift-versions)](https://swiftpackageindex.com/pierrejanineh-com/InfinityScrollKit)
-[![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fpierrejanineh-com%2FInfinityScrollKit%2Fbadge%3Ftype%3Dplatforms)](https://swiftpackageindex.com/pierrejanineh-com/InfinityScrollKit)
+# ``InfinityScrollKit``
 
 `InfinityScrollKit` is a SwiftUI package that simplifies implementing infinite scrolling for lists in iOS. The package handles loading more items as the user scrolls, while providing a customizable UI for both normal cells and the last loading/error state cell.
 
@@ -115,22 +111,3 @@ struct ContentView: View {
     }
 }
 ```
-
-## Platforms
-The InfiniteScrollView package supports the following platforms:
-- iOS 14.0+
-- macOS 14.0+
-- watchOS 7.0+
-- tvOS 14.0+
-- visionOS 1.0+
-
-## Contribution
-Feel free to contribute by creating issues or submitting pull requests. Before submitting, make sure to:
-1.  Fork the repository.
-2.  Create your feature branch `(git checkout -b feature/my-feature)`.
-3.  Commit your changes `(git commit -m 'Add some feature')`.
-4.  Push to the branch `(git push origin feature/my-feature)`.
-5.  Open a pull request.
-
-## License
-This project is licensed under the **MIT License**. See the **LICENSE** file for more details.
