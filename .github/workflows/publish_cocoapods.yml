@@ -1,0 +1,31 @@
+name: Publish to CocoaPods
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the code
+        uses: actions/checkout@v3
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.0'
+      
+      - name: Install CocoaPods
+        run: |
+          gem install cocoapods
+      
+      - name: Validate the podspec
+        run: |
+          pod spec lint InfinityScrollKit.podspec --allow-warnings
+      
+      - name: Publish to CocoaPods
+        run: |
+          pod trunk push InfinityScrollKit.podspec --allow-warnings
+        env:
+          COCOAPODS_TRUNK_TOKEN: ${{ secrets.COCOAPODS_TRUNK_TOKEN }}
