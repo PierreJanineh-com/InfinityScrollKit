@@ -5,7 +5,7 @@ import SwiftUI
 
 /// A view that displays a paginated array in an infinity scroll.
 public struct InfiniteScrollView<
-    T: Identifiable & Equatable,
+    T: Identifiable & Equatable & Sendable,
     Cell: View,
     LastCell: View,
     EmptyArrView: View
@@ -14,7 +14,7 @@ public struct InfiniteScrollView<
     @State private var currentlyShown: Int = 0
     @State private var isLoading: Bool = false
     
-    @State private var arr: Array<T>
+    @Binding private var arr: Array<T>
     private let options: Options<T>
     private let onLoadingChanged: ((Bool) -> Void)?
     @ViewBuilder private let cellView: (T) -> Cell
@@ -31,13 +31,13 @@ public struct InfiniteScrollView<
         - lastCellView: A `ViewBuilder` function that returns the last cell. Thsi is used for displaying errors and progress.
         - emptyArrView: The view to use when `arr` is empty.
      */
-    public init(arr: Array<T>,
+    public init(arr: Binding<Array<T>>,
                 options: Options<T>? = nil,
                 onLoadingChanged: ((Bool) -> Void)? = nil,
                 cellView: @escaping (T) -> Cell,
                 lastCellView: @escaping () -> LastCell = { EmptyView() },
                 emptyArrView: @escaping () -> EmptyArrView = { EmptyView() }) {
-        self._arr = .init(initialValue: arr)
+        self._arr = arr
         self.options = options ?? .init()
         self.onLoadingChanged = onLoadingChanged
         self.cellView = cellView
@@ -47,7 +47,8 @@ public struct InfiniteScrollView<
     
     public var body: some View {
         ScrollView(options.orientation) {
-            LazyVStack(spacing: options.spacing) {
+            LazyDStack(orientation: options.orientation,
+                       spacing: options.spacing) {
                 ForEach(displayedItems) { item in
                     cellView(item)
                         .onAppear {
@@ -60,27 +61,16 @@ public struct InfiniteScrollView<
                 }
                 
                 if arr.isEmpty {
-                    Group {
-                        if emptyArrView is () -> EmptyView {
-                            Text("No items yet...")
-                        } else {
-                            emptyArrView()
+                    EmptyArrayView(emptyArrView: emptyArrView)
+                        .onAppear {
+                            Task {
+                                await addMoreItemsIfAvailable()
+                            }
                         }
-                    }
-                    .onAppear {
-                        Task {
-                            await addMoreItemsIfAvailable()
-                        }
-                    }
                 }
                 
                 if isLoading {
-                    if lastCellView is () -> EmptyView {
-                        ProgressView()
-                            .padding()
-                    } else {
-                        lastCellView()
-                    }
+                    LastCellView(lastCellView: lastCellView)
                 }
             }
         }
@@ -89,10 +79,16 @@ public struct InfiniteScrollView<
         }
         .onRefresh {
             if let refreshed = await options.paginationOptions?.onRefresh?() {
-                arr = refreshed
+                await updateArr(refreshed)
             } else if let _ = options.paginationOptions?.onRefresh {
-                arr = []
+                await updateArr()
             }
+        }
+    }
+    
+    private func updateArr(_ newItems: [T] = []) {
+        Task { @MainActor in
+            self.arr = newItems
         }
     }
     
@@ -114,9 +110,9 @@ public struct InfiniteScrollView<
         if let paginationOptions = options.paginationOptions,
            let onPageLoad = paginationOptions.onPageLoad {
             if paginationOptions.concatMode == .manual {
-                await self.arr = onPageLoad()
+                await updateArr(onPageLoad())
             } else {
-                await self.arr += onPageLoad()
+                await updateArr(arr + onPageLoad())
             }
         }
         

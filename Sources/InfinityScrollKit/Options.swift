@@ -8,7 +8,7 @@
 import SwiftUI
 
 /// Instance for customizing ``InfiniteScrollView``
-public struct Options<T> {
+public struct Options<T: Sendable>: Sendable {
     
     /// The scroll's orientation
     let orientation: Axis.Set
@@ -40,7 +40,7 @@ public struct Options<T> {
 extension Options {
     
     /// Enum for managing concatenation on arrays while paginating
-    public enum ConcatMode {
+    public enum ConcatMode: Sendable {
         /// Add new items automatically to the array
         case auto
         /// Receive a new array containing all items (including new fetched items)
@@ -51,13 +51,13 @@ extension Options {
 extension Options {
     
     /// Instance for customizing scroll's pagination
-    public struct PaginationOptions {
+    public struct PaginationOptions: Sendable {
         /// Concatenation mode for loading items (comes along with `onPageLoad`
         let concatMode: ConcatMode
         /// Callback for indicating when the scroll is loading new items
-        let onPageLoad: (() async -> [T])?
+        let onPageLoad: (@Sendable () async -> [T])?
         /// Callback for refreshing the array
-        let onRefresh: (() async -> [T])?
+        let onRefresh: (@Sendable () async -> [T])?
         
         /**
          Creates an instance to customize scroll pagination.
@@ -66,7 +66,7 @@ extension Options {
             - onPageLoad: The callback action for handling next page loading.
          */
         public init(concatMode: ConcatMode = .manual,
-                    onPageLoad: (() async -> [T])? = nil) {
+                    onPageLoad: (@Sendable () async -> [T])? = nil) {
             self.concatMode = concatMode
             self.onPageLoad = onPageLoad
             self.onRefresh = nil
@@ -81,8 +81,8 @@ extension Options {
          */
         @available(iOS 15.0, macCatalyst 15.0, macOS 12.0, tvOS 15.0, visionOS 1.0, watchOS 8.0, *)
         public init(concatMode: ConcatMode = .manual,
-                    onPageLoad: (() async -> [T])? = nil,
-                    onRefresh: (() async -> [T])? = nil) {
+                    onPageLoad: (@Sendable () async -> [T])? = nil,
+                    onRefresh: (@Sendable () async -> [T])? = nil) {
             self.concatMode = concatMode
             self.onPageLoad = onPageLoad
             self.onRefresh = onRefresh

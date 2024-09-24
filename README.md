@@ -21,11 +21,20 @@ Add the package by going to your Xcode project:
 2.  Choose the project or target where you want to add the package.
 3.  Go to the Package Dependencies tab.
 4.  Click the `+` button.
-5. Search for `InfinityScrollKit` using the repository URL:
+5.  Search for `InfinityScrollKit` using the repository URL:
     ```bash
     https://github.com/PierreJanineh-com/InfinityScrollKit
     ```
 6.  Follow the prompts to complete the installation.
+
+### CocoaPods
+1.  If you are not yet using CocoaPods in your project, first run `sudo gem install cocoapods` followed by `pod init`. (For further information on installing CocoaPods, [click here](https://guides.cocoapods.org/using/getting-started.html#installation).)
+
+2.  Add the following to your Podfile (inside the target section):
+    ```bash
+    pod 'InfinityScrollKit'
+    ```
+3.  Run `pod install`.
 
 ## Usage
 > Check out the full example in this [repo](https://github.com/PierreJanineh-com/ISK-Example).
@@ -42,7 +51,7 @@ struct ContentView: View {
     
     var body: some View {
         InfiniteScrollView(
-            arr: items,
+            arr: $items,
             cellView: { item in
                 Text(item.name) // Customize the view for each item
             }
@@ -69,7 +78,7 @@ struct ContentView: View {
     
     var body: some View {
         InfiniteScrollView(
-            arr: arr,
+            arr: $arr,
             options: options,
             onLoadingChanged: onLoadingChanged,
             cellView: CellView,
@@ -88,10 +97,12 @@ struct ContentView: View {
                 onPageLoad: {
                     // Replace this with an API pagination request
                     try? await Task.sleep(nanoseconds: 5 * 1_000_000_000)
-                    for i in arr.count...arr.count + 10 {
-                        arr.append("Cell #\(i)")
-                    }
-                    return arr
+                    
+                    var fetchedItems: [String]
+                    // ...
+                    // fetch additional items to add to the current array
+                    
+                    return fetchedItems
                 },
                 concatMode: .auto  //.auto for automatically adding pages to the array instead of passing the full array everytime.
             )
