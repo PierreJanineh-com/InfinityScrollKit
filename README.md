@@ -12,6 +12,7 @@
 - Support for dynamic loading through a callback for loading more items.
 - Encapsulated state management for loading indicators.
 - Option to provide feedback to parent views about loading state changes.
+- Scroll orientation customization.
 
 ## Installation
 ### Swift Package Manager
@@ -81,16 +82,19 @@ struct ContentView: View {
 
     private var options: Options<String> {
         .init(
+            orientation: .horizontal,
             countPerPage: 2,
-            onPageLoad: {
-                // Replace this with an API pagination request
-                try? await Task.sleep(nanoseconds: 5 * 1_000_000_000)
-                for i in arr.count...arr.count + 10 {
-                    arr.append("Cell #\(i)")
-                }
-                return arr
-            },
-            concatMode: .auto  //.auto for automatically adding pages to the array instead of passing the full array everytime.
+            paginationOptions: .init(
+                onPageLoad: {
+                    // Replace this with an API pagination request
+                    try? await Task.sleep(nanoseconds: 5 * 1_000_000_000)
+                    for i in arr.count...arr.count + 10 {
+                        arr.append("Cell #\(i)")
+                    }
+                    return arr
+                },
+                concatMode: .auto  //.auto for automatically adding pages to the array instead of passing the full array everytime.
+            )
         )
     }
 
