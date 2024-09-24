@@ -5,7 +5,7 @@ import SwiftUI
 
 /// A view that displays a paginated array in an infinity scroll.
 public struct InfiniteScrollView<
-    T: Identifiable & Equatable,
+    T: Identifiable & Equatable & Sendable,
     Cell: View,
     LastCell: View,
     EmptyArrView: View
