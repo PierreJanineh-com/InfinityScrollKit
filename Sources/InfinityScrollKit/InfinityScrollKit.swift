@@ -89,10 +89,16 @@ public struct InfiniteScrollView<
         }
         .onRefresh {
             if let refreshed = await options.paginationOptions?.onRefresh?() {
-                arr = refreshed
+                await updateArr(refreshed)
             } else if let _ = options.paginationOptions?.onRefresh {
-                arr = []
+                await updateArr()
             }
+        }
+    }
+    
+    private func updateArr(_ newItems: [T] = []) {
+        Task { @MainActor in
+            self.arr = newItems
         }
     }
     
@@ -114,9 +120,9 @@ public struct InfiniteScrollView<
         if let paginationOptions = options.paginationOptions,
            let onPageLoad = paginationOptions.onPageLoad {
             if paginationOptions.concatMode == .manual {
-                await self.arr = onPageLoad()
+                await updateArr(onPageLoad())
             } else {
-                await self.arr += onPageLoad()
+                await updateArr(arr + onPageLoad())
             }
         }
         
