@@ -14,7 +14,7 @@ public struct InfiniteScrollView<
     @State private var currentlyShown: Int = 0
     @State private var isLoading: Bool = false
     
-    @State private var arr: Array<T>
+    @Binding private var arr: Array<T>
     private let options: Options<T>
     private let onLoadingChanged: ((Bool) -> Void)?
     @ViewBuilder private let cellView: (T) -> Cell
@@ -31,13 +31,13 @@ public struct InfiniteScrollView<
         - lastCellView: A `ViewBuilder` function that returns the last cell. Thsi is used for displaying errors and progress.
         - emptyArrView: The view to use when `arr` is empty.
      */
-    public init(arr: Array<T>,
+    public init(arr: Binding<Array<T>>,
                 options: Options<T>? = nil,
                 onLoadingChanged: ((Bool) -> Void)? = nil,
                 cellView: @escaping (T) -> Cell,
                 lastCellView: @escaping () -> LastCell = { EmptyView() },
                 emptyArrView: @escaping () -> EmptyArrView = { EmptyView() }) {
-        self._arr = .init(initialValue: arr)
+        self._arr = arr
         self.options = options ?? .init()
         self.onLoadingChanged = onLoadingChanged
         self.cellView = cellView
