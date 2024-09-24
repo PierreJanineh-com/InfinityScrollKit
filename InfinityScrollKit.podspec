@@ -2,7 +2,7 @@ Pod::Spec.new do |spec|
 
 # ―――  Spec Metadata  ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
 spec.name         = "InfinityScrollKit"
-spec.version      = "1.0.4"
+spec.version      = "1.0.5"
 spec.summary      = "A SwiftUI library that provides infinite scrolling functionality for lists."
 spec.description  = <<-DESC
     InfinityScrollKit is a lightweight and easy-to-use SwiftUI library designed for implementing infinite scroll views. It supports various platforms, including iOS, tvOS, macOS, macCatalyst, watchOS, and visionOS. Whether you're dealing with paginated APIs or dynamic content loading, this library simplifies the process of building endless scrolling lists in SwiftUI.
