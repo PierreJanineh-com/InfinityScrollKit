@@ -87,6 +87,13 @@ public struct InfiniteScrollView<
         .onChange(of: isLoading) { _ in
             onLoadingChanged?(isLoading)
         }
+        .onRefresh {
+            if let refreshed = await options.paginationOptions?.onRefresh?() {
+                arr = refreshed
+            } else if let _ = options.paginationOptions?.onRefresh {
+                arr = []
+            }
+        }
     }
     
     private var displayedItems: Array<T>.SubSequence {
