@@ -46,8 +46,8 @@ public struct InfiniteScrollView<
     }
     
     public var body: some View {
-        ScrollView {
-            LazyVStack {
+        ScrollView(options.orientation) {
+            LazyVStack(spacing: options.spacing) {
                 ForEach(displayedItems) { item in
                     cellView(item)
                         .onAppear {
@@ -87,6 +87,13 @@ public struct InfiniteScrollView<
         .onChange(of: isLoading) { _ in
             onLoadingChanged?(isLoading)
         }
+        .onRefresh {
+            if let refreshed = await options.paginationOptions?.onRefresh?() {
+                arr = refreshed
+            } else if let _ = options.paginationOptions?.onRefresh {
+                arr = []
+            }
+        }
     }
     
     private var displayedItems: Array<T>.SubSequence {
@@ -104,9 +111,9 @@ public struct InfiniteScrollView<
             currentlyShown += options.countPerPage
         }
         
-        if let onPageLoad = options.onPageLoad,
-           let concatMode = options.concatMode {
-            if concatMode == .manual {
+        if let paginationOptions = options.paginationOptions,
+           let onPageLoad = paginationOptions.onPageLoad {
+            if paginationOptions.concatMode == .manual {
                 await self.arr = onPageLoad()
             } else {
                 await self.arr += onPageLoad()
@@ -114,52 +121,5 @@ public struct InfiniteScrollView<
         }
         
         isLoading = false
-    }
-}
-
-/**
- Instance for customizing ``InfiniteScrollView``
- */
-public class Options<T> {
-    
-    /// Count of items to display per page
-    let countPerPage: Int
-    /// Callback for indicating when the scroll is loading new items
-    let onPageLoad: (() async -> [T])?
-    /// Concatenation mode for loading items (comes along with `onPageLoad`
-    let concatMode: ConcatMode?
-    
-    /**
-     Options initializer for customizing count of items per page.
-     - Parameters:
-        - countPerPage: Number of items in a single page (default value is 5).
-     */
-    public init(countPerPage: Int? = nil) {
-        self.countPerPage = countPerPage ?? 5
-        self.onPageLoad = nil
-        self.concatMode = nil
-    }
-    
-    /**
-     Options initializer for custom inifinite loading.
-     - Parameters:
-        - countPerPage: Number of items in a single page (default value is 5).
-        - onPageLoad: The callback function that retrieves an array to add to or replace the current array. This is typically the callback that handles scrolling down to the end.
-        - concatMode: An enum to indicate whether to add to or replace current array with the `onPageLoad` return value.
-     */
-    public init(countPerPage: Int? = nil, onPageLoad: @escaping () async -> [T], concatMode: ConcatMode = .auto) {
-        self.countPerPage = countPerPage ?? 5
-        self.onPageLoad = onPageLoad
-        self.concatMode = concatMode
-    }
-    
-    /**
-     Enum for managing concatenation on arrays while paginating
-     */
-    public enum ConcatMode {
-        /// Add new items automatically to the array
-        case auto
-        /// Receive a new array containing all items (including new fetched items)
-        case manual
     }
 }
