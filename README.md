@@ -51,7 +51,7 @@ struct ContentView: View {
     
     var body: some View {
         InfiniteScrollView(
-            arr: items,
+            arr: $items,
             cellView: { item in
                 Text(item.name) // Customize the view for each item
             }
@@ -78,7 +78,7 @@ struct ContentView: View {
     
     var body: some View {
         InfiniteScrollView(
-            arr: arr,
+            arr: $arr,
             options: options,
             onLoadingChanged: onLoadingChanged,
             cellView: CellView,
@@ -97,10 +97,12 @@ struct ContentView: View {
                 onPageLoad: {
                     // Replace this with an API pagination request
                     try? await Task.sleep(nanoseconds: 5 * 1_000_000_000)
-                    for i in arr.count...arr.count + 10 {
-                        arr.append("Cell #\(i)")
-                    }
-                    return arr
+                    
+                    var fetchedItems: [String]
+                    // ...
+                    // fetch additional items to add to the current array
+                    
+                    return fetchedItems
                 },
                 concatMode: .auto  //.auto for automatically adding pages to the array instead of passing the full array everytime.
             )
