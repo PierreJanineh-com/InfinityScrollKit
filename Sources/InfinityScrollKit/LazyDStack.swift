@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+/// Dynamic Lazy Stack for supporting orientation
 internal struct LazyDStack<Content: View>: View {
     let orientation: Axis.Set
     let spacing: CGFloat?
