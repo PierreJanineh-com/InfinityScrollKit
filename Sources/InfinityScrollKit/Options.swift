@@ -14,6 +14,8 @@ public struct Options<T> {
     let orientation: Axis.Set
     /// Count of items to display per page
     let countPerPage: Int
+    /// Spacing between each cell.
+    let spacing: CGFloat
     /// Pagination customizations and advanced options
     let paginationOptions: PaginationOptions?
     
@@ -26,9 +28,11 @@ public struct Options<T> {
      */
     public init(orientation: Axis.Set = .vertical,
                 countPerPage: Int = 5,
+                spacing: CGFloat = 0,
                 paginationOptions: PaginationOptions? = nil) {
         self.orientation = orientation
         self.countPerPage = countPerPage
+        self.spacing = spacing
         self.paginationOptions = paginationOptions
     }
 }
