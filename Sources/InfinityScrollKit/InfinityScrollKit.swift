@@ -70,12 +70,7 @@ public struct InfiniteScrollView<
                 }
                 
                 if isLoading {
-                    if lastCellView is () -> EmptyView {
-                        ProgressView()
-                            .padding()
-                    } else {
-                        lastCellView()
-                    }
+                    LastCellView(lastCellView: lastCellView)
                 }
             }
         }
