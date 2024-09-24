@@ -84,7 +84,7 @@ public struct InfiniteScrollView<
                 }
             }
         }
-        .onChange(of: isLoading) { _ in
+        .onChange(of: isLoading) {
             onLoadingChanged?(isLoading)
         }
         .onRefresh {
