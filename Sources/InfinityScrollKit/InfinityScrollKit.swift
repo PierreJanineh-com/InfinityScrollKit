@@ -47,7 +47,8 @@ public struct InfiniteScrollView<
     
     public var body: some View {
         ScrollView(options.orientation) {
-            LazyVStack(spacing: options.spacing) {
+            LazyDStack(orientation: options.orientation,
+                       spacing: options.spacing) {
                 ForEach(displayedItems) { item in
                     cellView(item)
                         .onAppear {
