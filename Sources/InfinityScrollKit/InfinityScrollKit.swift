@@ -61,27 +61,16 @@ public struct InfiniteScrollView<
                 }
                 
                 if arr.isEmpty {
-                    Group {
-                        if emptyArrView is () -> EmptyView {
-                            Text("No items yet...")
-                        } else {
-                            emptyArrView()
+                    EmptyArrayView(emptyArrView: emptyArrView)
+                        .onAppear {
+                            Task {
+                                await addMoreItemsIfAvailable()
+                            }
                         }
-                    }
-                    .onAppear {
-                        Task {
-                            await addMoreItemsIfAvailable()
-                        }
-                    }
                 }
                 
                 if isLoading {
-                    if lastCellView is () -> EmptyView {
-                        ProgressView()
-                            .padding()
-                    } else {
-                        lastCellView()
-                    }
+                    LastCellView(lastCellView: lastCellView)
                 }
             }
         }
