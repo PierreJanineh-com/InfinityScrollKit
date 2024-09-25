@@ -1,8 +1,8 @@
 name: Bug report
-about: Create a report to help us improve
-title: ''
+description: Create a report to help us improve
+title: 'BUG: '
 labels: 'bug'
-assignees: ''
+assignees: 'PierreJanineh'
 body:
   - type: dropdown
     id: implementation
