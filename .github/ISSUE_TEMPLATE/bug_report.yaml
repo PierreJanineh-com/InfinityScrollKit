@@ -36,8 +36,8 @@ body:
     attributes:
       label: How did you implement the package?
       options:
-        - "CocoaPods"
-        - "Swift Package Manager (SPM)"
+        - label: CocoaPods
+        - label: Swift Package Manager (SPM)
     validations:
       required: true
   - type: checkboxes
@@ -45,18 +45,18 @@ body:
     attributes:
       label: Which platforms does your app support?
       options:
-        - iOS
-        - macOS
-        - macCatalyst
-        - watchOS
-        - tvOS
-        - visionOS
+        - label: iOS
+        - label: macOS
+        - label: macCatalyst
+        - label: watchOS
+        - label: tvOS
+        - label: visionOS
     validations:
       required: true
   - type: input
     id: xcode
     attributes:
       label: What Xcode version do you use?
-      placeholder: 16.0
+      placeholder: "16.0"
     validations:
       required: true
