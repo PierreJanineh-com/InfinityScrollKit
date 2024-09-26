@@ -36,8 +36,8 @@ body:
     attributes:
       label: How did you implement the package?
       options:
-        - label: CocoaPods
-        - label: Swift Package Manager (SPM)
+        - CocoaPods
+        - Swift Package Manager (SPM)
     validations:
       required: true
   - type: checkboxes
