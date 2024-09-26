@@ -44,7 +44,6 @@ body:
     id: platform
     attributes:
       label: Which platforms does your app support?
-      placeholer: 
       options:
         - iOS
         - macOS
