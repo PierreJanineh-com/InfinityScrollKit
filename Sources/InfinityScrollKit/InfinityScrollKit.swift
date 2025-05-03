@@ -73,10 +73,16 @@ public struct InfiniteScrollView<
                     LastCellView(lastCellView: lastCellView)
                 }
             }
-        }
-        .onChange(of: isLoading) { _ in
-            onLoadingChanged?(isLoading)
-        }
+		}
+//#if os(macOS)
+		.onChange(of: isLoading) {
+			onLoadingChanged?(isLoading)
+		}
+//#else
+		.onChange(of: isLoading) { _ in
+			onLoadingChanged?(isLoading)
+		}
+//#endif
         .onRefresh {
             if let refreshed = await options.paginationOptions?.onRefresh?() {
                 updateArr(refreshed)
