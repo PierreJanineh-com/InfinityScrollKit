@@ -11,7 +11,8 @@ struct LastCellView<LastCell: View>: View {
     @ViewBuilder let lastCellView: () -> LastCell
     
     var body: some View {
-        if lastCellView is () -> EmptyView {
+		if lastCellView is () -> EmptyView ||
+			(lastCellView() as? UIKitWrapperView)?.view is UIEmptyView {
             ProgressView()
                 .padding()
         } else {

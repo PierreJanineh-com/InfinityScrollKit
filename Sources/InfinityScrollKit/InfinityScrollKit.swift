@@ -17,7 +17,7 @@ public struct InfiniteScrollView<
     @Binding private var arr: Array<T>
     private let options: Options<T>
     private let onLoadingChanged: ((Bool) -> Void)?
-    @ViewBuilder private let cellView: (T) -> Cell
+	@ViewBuilder private let cellView: (T, IndexPath.Index) -> Cell
     @ViewBuilder private let lastCellView: () -> LastCell
     @ViewBuilder private let emptyArrView: () -> EmptyArrView
     
@@ -34,7 +34,7 @@ public struct InfiniteScrollView<
     public init(arr: Binding<Array<T>>,
                 options: Options<T>? = nil,
                 onLoadingChanged: ((Bool) -> Void)? = nil,
-                cellView: @escaping (T) -> Cell,
+				cellView: @escaping (T, IndexPath.Index) -> Cell,
                 lastCellView: @escaping () -> LastCell = { EmptyView() },
                 emptyArrView: @escaping () -> EmptyArrView = { EmptyView() }) {
         self._arr = arr
@@ -49,8 +49,11 @@ public struct InfiniteScrollView<
         ScrollView(options.orientation) {
             LazyDStack(orientation: options.orientation,
                        spacing: options.spacing) {
-                ForEach(displayedItems) { item in
-                    cellView(item)
+				ForEach(
+					Array(displayedItems.enumerated()),
+					id: \.element.id
+				) { i, item in
+					cellView(item, i)
                         .onAppear {
                             if item == displayedItems.last {
                                 Task {
@@ -93,9 +96,7 @@ public struct InfiniteScrollView<
     }
     
     private func updateArr(_ newItems: [T] = []) {
-        Task { @MainActor in
-            self.arr = newItems
-        }
+		self.arr = newItems
     }
     
     private var displayedItems: Array<T>.SubSequence {
@@ -116,9 +117,9 @@ public struct InfiniteScrollView<
         if let paginationOptions = options.paginationOptions,
            let onPageLoad = paginationOptions.onPageLoad {
             if paginationOptions.concatMode == .manual {
-                await updateArr(onPageLoad())
+                updateArr(await onPageLoad())
             } else {
-                await updateArr(arr + onPageLoad())
+                updateArr(arr + (await onPageLoad()))
             }
         }
         
