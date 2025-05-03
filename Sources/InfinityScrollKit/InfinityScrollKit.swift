@@ -79,9 +79,9 @@ public struct InfiniteScrollView<
         }
         .onRefresh {
             if let refreshed = await options.paginationOptions?.onRefresh?() {
-                await updateArr(refreshed)
+                updateArr(refreshed)
             } else if let _ = options.paginationOptions?.onRefresh {
-                await updateArr()
+                updateArr()
             }
         }
     }
