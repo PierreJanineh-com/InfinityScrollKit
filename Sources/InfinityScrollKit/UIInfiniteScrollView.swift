@@ -112,7 +112,12 @@ public class UIInfiniteScrollView<
 		setupScrollView()
 	}
 	
-	private lazy var hostingController: UIHostingController<InfiniteScrollView<Item, UIKitWrapperView, UIKitWrapperView, UIKitWrapperView>> = {
+	private lazy var hostingController: UIHostingController<InfiniteScrollView<
+		Item,
+		UIKitWrapperView,
+		UIKitWrapperView,
+		UIKitWrapperView
+	>> = {
 		let infiniteScrollView = InfiniteScrollView(
 			arr: arr,
 			options: options,

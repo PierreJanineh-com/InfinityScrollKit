@@ -34,16 +34,31 @@ public struct InfiniteScrollView<
     public init(arr: Binding<Array<T>>,
                 options: Options<T>? = nil,
                 onLoadingChanged: ((Bool) -> Void)? = nil,
-				cellView: @escaping (T, IndexPath.Index) -> Cell,
+                cellView: @escaping (T) -> Cell,
                 lastCellView: @escaping () -> LastCell = { EmptyView() },
                 emptyArrView: @escaping () -> EmptyArrView = { EmptyView() }) {
         self._arr = arr
         self.options = options ?? .init()
         self.onLoadingChanged = onLoadingChanged
-        self.cellView = cellView
+        self.cellView = { t, _ in cellView(t) }
         self.lastCellView = lastCellView
         self.emptyArrView = emptyArrView
     }
+	
+	/// This is an internal initializer for ``UIInfiniteScrollView``. Provides an index
+	internal init(arr: Binding<Array<T>>,
+				options: Options<T>? = nil,
+				onLoadingChanged: ((Bool) -> Void)? = nil,
+				cellView: @escaping (T, IndexPath.Index) -> Cell,
+				lastCellView: @escaping () -> LastCell = { EmptyView() },
+				emptyArrView: @escaping () -> EmptyArrView = { EmptyView() }) {
+		self._arr = arr
+		self.options = options ?? .init()
+		self.onLoadingChanged = onLoadingChanged
+		self.cellView = cellView
+		self.lastCellView = lastCellView
+		self.emptyArrView = emptyArrView
+	}
     
     public var body: some View {
         ScrollView(options.orientation) {
