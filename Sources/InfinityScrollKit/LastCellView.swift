@@ -12,7 +12,7 @@ struct LastCellView<LastCell: View>: View {
     
     var body: some View {
 		if lastCellView is () -> EmptyView ||
-			(lastCellView() as? UIKitWrapperView)?.view is UIEmptyView {
+			(lastCellView() as? KitWrapperView)?.view is KitEmptyView {
             ProgressView()
                 .padding()
         } else {

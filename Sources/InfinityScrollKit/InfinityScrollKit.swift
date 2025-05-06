@@ -3,6 +3,14 @@
 
 import SwiftUI
 
+#if os(macOS)
+internal typealias KitWrapperView = NSWrapperView
+internal typealias KitEmptyView = NSEmptyView
+#else
+internal typealias KitWrapperView = UIWrapperView
+internal typealias KitEmptyView = UIEmptyView
+#endif
+
 /// A view that displays a paginated array in an infinity scroll.
 public struct InfiniteScrollView<
     T: Identifiable & Equatable & Sendable,

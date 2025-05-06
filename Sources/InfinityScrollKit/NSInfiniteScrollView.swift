@@ -1,52 +1,51 @@
 //
-//  UIInfiniteScrollView.swift
+//  NSInfiniteScrollView.swift
 //  InfinityScrollKit
 //
-//  Created by Pierre Janineh on 27/09/2024.
+//  Created by Pierre Janineh on 06/05/2025.
 //
 
-#if !os(macOS)
+#if os(macOS)
 import SwiftUI
-import UIKit
+import AppKit
 
-/// A delegate protocol for providing custom UIKit views to `UIInfiniteScrollView`.
-public protocol UIInfiniteScrollViewDelegate {
+public protocol NSInfiniteScrollViewDelegate {
 	associatedtype Item: Identifiable & Equatable & Sendable
 	
 	/// Returns a custom cell view for the provided item at the given index.
 	/// - Parameters:
 	///   - item: The item to render.
 	///   - at: The index path index for the item.
-	func cellFor(_ item: Item, at: IndexPath.Index) -> UIView
+	func cellFor(_ item: Item, at: IndexPath.Index) -> NSView
 	
 	/// Provides a view shown at the end of the list (e.g., a loading spinner).
 	/// Defaults to `nil`.
 	///
 	/// When nil is returned, or this is not implemented, a _**ProgressView**_ is displayed.
-	func lastCellView() -> UIView?
+	func lastCellView() -> NSView?
 	
 	/// Provides a view when the array is empty (e.g., "No items yet..." label).
 	/// Defaults to `nil`.
 	///
 	/// When nil is returned, or this is not implemented, a Label with the text _**"No items yet..."**_ is displayed.
-	func emptyArrayView() -> UIView?
+	func emptyArrayView() -> NSView?
 	
 	/// Notifies when loading state changes (useful for updating UI state externally).
 	/// Defaults to no-op.
 	func onLoadingChanged(_ isLoading: Bool)
 }
-public extension UIInfiniteScrollViewDelegate where Item: Identifiable & Equatable & Sendable {
-	func lastCellView() -> UIView? { nil }
-	func emptyArrayView() -> UIView? { nil }
+public extension NSInfiniteScrollViewDelegate {
+	func lastCellView() -> NSView? { nil }
+	func emptyArrayView() -> NSView? { nil }
 	func onLoadingChanged(_ isLoading: Bool) { }
 }
 
-/// A UIKit-based scroll view with infinite scrolling capabilities and SwiftUI integration.
-/// Wraps `InfiniteScrollView` from SwiftUI for use in UIKit.
-public class UIInfiniteScrollView<
+/// An AppKit-based scroll view with infinite scrolling capabilities and SwiftUI integration.
+/// Wraps `InfiniteScrollView` from SwiftUI for use in AppKit.
+public class NSInfiniteScrollView<
 	Item: Identifiable & Equatable & Sendable,
-	Delegate: UIInfiniteScrollViewDelegate
->: UIView where Delegate.Item == Item {
+	Delegate: NSInfiniteScrollViewDelegate
+>: NSView where Delegate.Item == Item {
 	
 	/// Delegate responsible for providing views and handling state.
 	public var delegate: Delegate?
@@ -57,7 +56,7 @@ public class UIInfiniteScrollView<
 	/// Options for configuring the scroll view behavior.
 	public var options: Options<Item> {
 		didSet {
-			hostingController = .init(rootView: InfiniteScrollView(
+			hostingController = NSHostingController(rootView: InfiniteScrollView(
 				arr: arr,
 				options: options,
 				onLoadingChanged: delegate?.onLoadingChanged,
@@ -80,7 +79,6 @@ public class UIInfiniteScrollView<
 	) {
 		self.items = items
 		self.options = options
-		
 		super.init(frame: .zero)
 		setupScrollView()
 	}
@@ -104,18 +102,24 @@ public class UIInfiniteScrollView<
 	required init?(coder: NSCoder) {
 		self.items = []
 		self.options = .init()
-		
 		super.init(coder: coder)
 		setupScrollView()
 	}
 	
-	private lazy var hostingController: UIHostingController<InfiniteScrollView<
+	private lazy var arr: Binding<[Item]> = {
+		.init(
+			get: { self.items },
+			set: { self.items = $0 }
+		)
+	}()
+	
+	private lazy var hostingController: NSHostingController<InfiniteScrollView<
 		Item,
-		UIKitWrapperView,
-		UIKitWrapperView,
-		UIKitWrapperView
+		NSWrapperView,
+		NSWrapperView,
+		NSWrapperView
 	>> = {
-		let infiniteScrollView = InfiniteScrollView(
+		let view = InfiniteScrollView(
 			arr: arr,
 			options: options,
 			onLoadingChanged: delegate?.onLoadingChanged,
@@ -123,24 +127,14 @@ public class UIInfiniteScrollView<
 			lastCellView: LastCellView,
 			emptyArrView: EmptyArrView
 		)
-		return .init(rootView: infiniteScrollView)
-	}()
-	
-	private lazy var arr: Binding<[Item]> = {
-		.init(
-			get: {
-				self.items
-			},
-			set: { items in
-				self.items = items
-			}
-		)
+		return NSHostingController(rootView: view)
 	}()
 	
 	private func setupScrollView() {
-		frame.size = hostingController.view.frame.size
+		if let old = subviews.first {
+			old.removeFromSuperview()
+		}
 		addSubview(hostingController.view)
-		
 		hostingController.view.translatesAutoresizingMaskIntoConstraints = false
 		NSLayoutConstraint.activate([
 			hostingController.view.topAnchor.constraint(equalTo: topAnchor),
@@ -151,32 +145,30 @@ public class UIInfiniteScrollView<
 		])
 	}
 	
-	@ViewBuilder private func CellView(_ item: Item, _ at: IndexPath.Index) -> UIKitWrapperView {
-		guard let delegate
-		else {
-			fatalError("`UIInfiniteScrollView.delegate` should be assigned a value")
+	@ViewBuilder private func CellView(_ item: Item, _ at: IndexPath.Index) -> NSWrapperView {
+		guard let delegate else {
+			fatalError("NSInfiniteScrollView.delegate must be assigned")
 		}
-		return UIKitWrapperView(view: delegate.cellFor(item, at: at))
+		return NSWrapperView(view: delegate.cellFor(item, at: at))
 	}
 	
-	@ViewBuilder private func LastCellView() -> UIKitWrapperView {
-		UIKitWrapperView(view: delegate?.lastCellView() ?? UIEmptyView())
+	@ViewBuilder private func LastCellView() -> NSWrapperView {
+		NSWrapperView(view: delegate?.lastCellView() ?? NSEmptyView())
 	}
 	
-	@ViewBuilder private func EmptyArrView() -> UIKitWrapperView {
-		UIKitWrapperView(view: delegate?.emptyArrayView() ?? UIEmptyView())
+	@ViewBuilder private func EmptyArrView() -> NSWrapperView {
+		NSWrapperView(view: delegate?.emptyArrayView() ?? NSEmptyView())
 	}
 }
 
-/// A wrapper that makes a `UIView` usable inside SwiftUI.
-internal struct UIKitWrapperView: UIViewRepresentable {
-	let view: UIView
+/// A wrapper that makes a `NSView` usable inside SwiftUI.
+internal struct NSWrapperView: NSViewRepresentable {
+	let view: NSView
 	
-	func makeUIView(context: Context) -> UIView { view }
-	
-	func updateUIView(_ uiView: UIView, context: Context) {}
+	func makeNSView(context: Context) -> NSView { view }
+	func updateNSView(_ nsView: NSView, context: Context) {}
 }
 
-/// A default empty `UIView` used as fallback for optional views.
-internal class UIEmptyView: UIView {}
+/// A default empty `NSView` used as fallback for optional views.
+internal class NSEmptyView: NSView {}
 #endif

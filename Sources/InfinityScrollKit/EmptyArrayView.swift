@@ -12,7 +12,7 @@ struct EmptyArrayView<EmptyArrView: View>: View {
     
     var body: some View {
 		if emptyArrView is () -> EmptyView ||
-			(emptyArrView() as? UIKitWrapperView)?.view is UIEmptyView {
+			(emptyArrView() as? KitWrapperView)?.view is KitEmptyView {
 			Text("No items yet...")
 		} else {
 			emptyArrView()
