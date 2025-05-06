@@ -9,6 +9,7 @@
 import SwiftUI
 import AppKit
 
+/// A delegate protocol for providing custom AppKit views to `NSInfiniteScrollView`.
 public protocol NSInfiniteScrollViewDelegate {
 	associatedtype Item: Identifiable & Equatable & Sendable
 	
@@ -70,7 +71,6 @@ public class NSInfiniteScrollView<
 	
 	/// Initializes the scroll view with a frame, items, and optional configuration options.
 	/// - Parameters:
-	///   - frame: The frame of the scroll view.
 	///   - items: Initial array of items.
 	///   - options: Scroll behavior configuration (default is empty).
 	public init(
@@ -85,6 +85,7 @@ public class NSInfiniteScrollView<
 	
 	/// Convenience initializer without specifying a frame.
 	/// - Parameters:
+	///   - frame: The frame of the scroll view.
 	///   - items: Initial array of items.
 	///   - options: Scroll behavior configuration (default is empty).
 	public init(
@@ -145,7 +146,7 @@ public class NSInfiniteScrollView<
 		])
 	}
 	
-	@ViewBuilder private func CellView(_ item: Item, _ at: IndexPath.Index) -> NSWrapperView {
+	private func CellView(_ item: Item, _ at: IndexPath.Index) -> NSWrapperView {
 		guard let delegate else {
 			fatalError("NSInfiniteScrollView.delegate must be assigned")
 		}

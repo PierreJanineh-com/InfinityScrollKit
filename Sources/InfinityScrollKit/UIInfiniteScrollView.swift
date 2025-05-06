@@ -111,9 +111,9 @@ public class UIInfiniteScrollView<
 	
 	private lazy var hostingController: UIHostingController<InfiniteScrollView<
 		Item,
-		UIKitWrapperView,
-		UIKitWrapperView,
-		UIKitWrapperView
+		UIWrapperView,
+		UIWrapperView,
+		UIWrapperView
 	>> = {
 		let infiniteScrollView = InfiniteScrollView(
 			arr: arr,
@@ -151,25 +151,25 @@ public class UIInfiniteScrollView<
 		])
 	}
 	
-	@ViewBuilder private func CellView(_ item: Item, _ at: IndexPath.Index) -> UIKitWrapperView {
+	private func CellView(_ item: Item, _ at: IndexPath.Index) -> UIWrapperView {
 		guard let delegate
 		else {
 			fatalError("`UIInfiniteScrollView.delegate` should be assigned a value")
 		}
-		return UIKitWrapperView(view: delegate.cellFor(item, at: at))
+		return UIWrapperView(view: delegate.cellFor(item, at: at))
 	}
 	
-	@ViewBuilder private func LastCellView() -> UIKitWrapperView {
-		UIKitWrapperView(view: delegate?.lastCellView() ?? UIEmptyView())
+	@ViewBuilder private func LastCellView() -> UIWrapperView {
+		UIWrapperView(view: delegate?.lastCellView() ?? UIEmptyView())
 	}
 	
-	@ViewBuilder private func EmptyArrView() -> UIKitWrapperView {
-		UIKitWrapperView(view: delegate?.emptyArrayView() ?? UIEmptyView())
+	@ViewBuilder private func EmptyArrView() -> UIWrapperView {
+		UIWrapperView(view: delegate?.emptyArrayView() ?? UIEmptyView())
 	}
 }
 
 /// A wrapper that makes a `UIView` usable inside SwiftUI.
-internal struct UIKitWrapperView: UIViewRepresentable {
+internal struct UIWrapperView: UIViewRepresentable {
 	let view: UIView
 	
 	func makeUIView(context: Context) -> UIView { view }
