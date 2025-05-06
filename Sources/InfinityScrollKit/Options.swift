@@ -24,6 +24,7 @@ public struct Options<T: Sendable>: Sendable {
      - Parameters:
         - orientation: The orientation of the scroll.
         - countPerPage: Number of items in a single page (default value is 5).
+        - spacing: Spacing if needed between cells (default value is 0).
         - paginationOptions: An instance for advanced pagination options.
      */
     public init(orientation: Axis.Set = .vertical,

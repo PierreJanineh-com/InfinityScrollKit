@@ -3,6 +3,14 @@
 
 import SwiftUI
 
+#if os(macOS)
+internal typealias KitWrapperView = NSWrapperView
+internal typealias KitEmptyView = NSEmptyView
+#else
+internal typealias KitWrapperView = UIWrapperView
+internal typealias KitEmptyView = UIEmptyView
+#endif
+
 /// A view that displays a paginated array in an infinity scroll.
 public struct InfiniteScrollView<
     T: Identifiable & Equatable & Sendable,
@@ -17,7 +25,7 @@ public struct InfiniteScrollView<
     @Binding private var arr: Array<T>
     private let options: Options<T>
     private let onLoadingChanged: ((Bool) -> Void)?
-    @ViewBuilder private let cellView: (T) -> Cell
+	@ViewBuilder private let cellView: (T, IndexPath.Index) -> Cell
     @ViewBuilder private let lastCellView: () -> LastCell
     @ViewBuilder private let emptyArrView: () -> EmptyArrView
     
@@ -40,17 +48,35 @@ public struct InfiniteScrollView<
         self._arr = arr
         self.options = options ?? .init()
         self.onLoadingChanged = onLoadingChanged
-        self.cellView = cellView
+        self.cellView = { t, _ in cellView(t) }
         self.lastCellView = lastCellView
         self.emptyArrView = emptyArrView
     }
+	
+	/// This is an internal initializer for ``UIInfiniteScrollView``. Provides an index
+	internal init(arr: Binding<Array<T>>,
+				options: Options<T>? = nil,
+				onLoadingChanged: ((Bool) -> Void)? = nil,
+				cellView: @escaping (T, IndexPath.Index) -> Cell,
+				lastCellView: @escaping () -> LastCell = { EmptyView() },
+				emptyArrView: @escaping () -> EmptyArrView = { EmptyView() }) {
+		self._arr = arr
+		self.options = options ?? .init()
+		self.onLoadingChanged = onLoadingChanged
+		self.cellView = cellView
+		self.lastCellView = lastCellView
+		self.emptyArrView = emptyArrView
+	}
     
     public var body: some View {
         ScrollView(options.orientation) {
             LazyDStack(orientation: options.orientation,
                        spacing: options.spacing) {
-                ForEach(displayedItems) { item in
-                    cellView(item)
+				ForEach(
+					Array(displayedItems.enumerated()),
+					id: \.element.id
+				) { i, item in
+					cellView(item, i)
                         .onAppear {
                             if item == displayedItems.last {
                                 Task {
@@ -73,23 +99,27 @@ public struct InfiniteScrollView<
                     LastCellView(lastCellView: lastCellView)
                 }
             }
-        }
-        .onChange(of: isLoading) { _ in
-            onLoadingChanged?(isLoading)
-        }
+		}
+#if os(macOS)
+		.onChange(of: isLoading) {
+			onLoadingChanged?(isLoading)
+		}
+#else
+		.onChange(of: isLoading) { _ in
+			onLoadingChanged?(isLoading)
+		}
+#endif
         .onRefresh {
             if let refreshed = await options.paginationOptions?.onRefresh?() {
-                await updateArr(refreshed)
+                updateArr(refreshed)
             } else if let _ = options.paginationOptions?.onRefresh {
-                await updateArr()
+                updateArr()
             }
         }
     }
     
     private func updateArr(_ newItems: [T] = []) {
-        Task { @MainActor in
-            self.arr = newItems
-        }
+		self.arr = newItems
     }
     
     private var displayedItems: Array<T>.SubSequence {
@@ -110,9 +140,9 @@ public struct InfiniteScrollView<
         if let paginationOptions = options.paginationOptions,
            let onPageLoad = paginationOptions.onPageLoad {
             if paginationOptions.concatMode == .manual {
-                await updateArr(onPageLoad())
+                updateArr(await onPageLoad())
             } else {
-                await updateArr(arr + onPageLoad())
+                updateArr(arr + (await onPageLoad()))
             }
         }
         

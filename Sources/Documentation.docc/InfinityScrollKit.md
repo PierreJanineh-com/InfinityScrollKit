@@ -4,10 +4,13 @@
 
 ## Features
 - Infinite scrolling support for any SwiftUI list.
+- Native UIKit and AppKit support with `UIInfiniteScrollView` and `NSInfiniteScrollView`.
 - Customizable views for individual items and the last cell (used for progress indicators or error states).
 - Support for dynamic loading through a callback for loading more items.
 - Encapsulated state management for loading indicators.
 - Option to provide feedback to parent views about loading state changes.
+- Scroll orientation customization.
+- Customizable spacing between cells.
 
 ## Installation
 ### Swift Package Manager
@@ -25,19 +28,19 @@ Add the package by going to your Xcode project:
 ## Usage
 > Check out the full example in this [repo](https://github.com/PierreJanineh-com/ISK-Example).
 
-### Basic Usage
+### SwiftUI Usage
 Below is a basic usage example where we create an infinite scroll list with custom item and last cell views:
 
 ```swift
 import SwiftUI
-import InfiniteScrollView
+import InfinityScrollKit
 
 struct ContentView: View {
     @State private var items: [MyItem] = []
     
     var body: some View {
         InfiniteScrollView(
-            arr: items,
+            arr: $items,
             cellView: { item in
                 Text(item.name) // Customize the view for each item
             }
@@ -47,6 +50,98 @@ struct ContentView: View {
 ```
 - `arr`: The array of items to display.
 - `cellView`: A `ViewBuilder` function to display the individual cells in the list.
+
+### UIKit Usage
+For UIKit-based applications, use `UIInfiniteScrollView`:
+
+```swift
+import UIKit
+import InfinityScrollKit
+
+class ViewController: UIViewController {
+    private var scrollView: UIInfiniteScrollView<String, ViewController>!
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        // Initialize with items
+        scrollView = UIInfiniteScrollView(items: ["Item 1", "Item 2", "Item 3"])
+        scrollView.delegate = self
+        view.addSubview(scrollView)
+        
+        // Setup constraints
+        // ...
+    }
+}
+
+extension ViewController: UIInfiniteScrollViewDelegate {
+    func cellFor(_ item: String, at: IndexPath.Index) -> UIView {
+        let label = UILabel()
+        label.text = item
+        return label
+    }
+    
+    func lastCellView() -> UIView? {
+        let activityIndicator = UIActivityIndicatorView(style: .medium)
+        activityIndicator.startAnimating()
+        return activityIndicator
+    }
+    
+    func emptyArrayView() -> UIView? {
+        let label = UILabel()
+        label.text = "No items yet..."
+        return label
+    }
+    
+    func onLoadingChanged(_ isLoading: Bool) {
+        // Handle loading state changes if needed
+    }
+}
+```
+
+### AppKit Usage
+For macOS applications, use `NSInfiniteScrollView`:
+
+```swift
+import AppKit
+import InfinityScrollKit
+
+class ViewController: NSViewController {
+    private var scrollView: NSInfiniteScrollView<String, ViewController>!
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        // Initialize with items
+        scrollView = NSInfiniteScrollView(items: ["Item 1", "Item 2", "Item 3"])
+        scrollView.delegate = self
+        view.addSubview(scrollView)
+        
+        // Setup constraints
+        // ...
+    }
+}
+
+extension ViewController: NSInfiniteScrollViewDelegate {
+    func cellFor(_ item: String, at: IndexPath.Index) -> NSView {
+        NSTextField(labelWithString: item)
+    }
+    
+    func lastCellView() -> NSView? {
+        let progressIndicator = NSProgressIndicator()
+        progressIndicator.startAnimation(nil)
+        return progressIndicator
+    }
+    
+    func emptyArrayView() -> NSView? {
+        NSTextField(labelWithString: "No items yet...")
+    }
+    
+    func onLoadingChanged(_ isLoading: Bool) {
+        // Handle loading state changes if needed
+    }
+}
+```
 
 ### Customization
 - `onLoadingChange`: A closure to notify the parent view when the loading state changes.
@@ -64,7 +159,7 @@ struct ContentView: View {
     
     var body: some View {
         InfiniteScrollView(
-            arr: arr,
+            arr: $arr,
             options: options,
             onLoadingChanged: onLoadingChanged,
             cellView: CellView,
@@ -77,16 +172,21 @@ struct ContentView: View {
 
     private var options: Options<String> {
         .init(
+            orientation: .horizontal,
             countPerPage: 2,
-            onPageLoad: {
-                // Replace this with an API pagination request
-                try? await Task.sleep(nanoseconds: 5 * 1_000_000_000)
-                for i in arr.count...arr.count + 10 {
-                    arr.append("Cell #\(i)")
-                }
-                return arr
-            },
-            concatMode: .auto  //.auto for automatically adding pages to the array instead of passing the full array everytime.
+            paginationOptions: .init(
+                onPageLoad: {
+                    // Replace this with an API pagination request
+                    try? await Task.sleep(nanoseconds: 5 * 1_000_000_000)
+                    
+                    var fetchedItems: [String]
+                    // ...
+                    // fetch additional items to add to the current array
+                    
+                    return fetchedItems
+                },
+                concatMode: .auto  //.auto for automatically adding pages to the array instead of passing the full array everytime.
+            )
         )
     }
 

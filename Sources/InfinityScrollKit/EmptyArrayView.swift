@@ -11,12 +11,11 @@ struct EmptyArrayView<EmptyArrView: View>: View {
     @ViewBuilder let emptyArrView: () -> EmptyArrView
     
     var body: some View {
-        Group {
-            if emptyArrView is () -> EmptyView {
-                Text("No items yet...")
-            } else {
-                emptyArrView()
-            }
-        }
+		if emptyArrView is () -> EmptyView ||
+			(emptyArrView() as? KitWrapperView)?.view is KitEmptyView {
+			Text("No items yet...")
+		} else {
+			emptyArrView()
+		}
     }
 }
