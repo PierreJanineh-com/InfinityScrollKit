@@ -138,7 +138,9 @@ public class UIInfiniteScrollView<
 	}()
 	
 	private func setupScrollView() {
-		frame.size = hostingController.view.frame.size
+		if let old = subviews.first {
+			old.removeFromSuperview()
+		}
 		addSubview(hostingController.view)
 		
 		hostingController.view.translatesAutoresizingMaskIntoConstraints = false
@@ -165,6 +167,11 @@ public class UIInfiniteScrollView<
 	
 	@ViewBuilder private func EmptyArrView() -> UIWrapperView {
 		UIWrapperView(view: delegate?.emptyArrayView() ?? UIEmptyView())
+	}
+	
+	deinit {
+		hostingController.removeFromParent()
+		hostingController.view.removeFromSuperview()
 	}
 }
 

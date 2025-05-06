@@ -136,6 +136,7 @@ public class NSInfiniteScrollView<
 			old.removeFromSuperview()
 		}
 		addSubview(hostingController.view)
+		
 		hostingController.view.translatesAutoresizingMaskIntoConstraints = false
 		NSLayoutConstraint.activate([
 			hostingController.view.topAnchor.constraint(equalTo: topAnchor),
@@ -159,6 +160,11 @@ public class NSInfiniteScrollView<
 	
 	@ViewBuilder private func EmptyArrView() -> NSWrapperView {
 		NSWrapperView(view: delegate?.emptyArrayView() ?? NSEmptyView())
+	}
+	
+	deinit {
+		hostingController.removeFromParent()
+		hostingController.view.removeFromSuperview()
 	}
 }
 
